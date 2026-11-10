@@ -2,7 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "src",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
@@ -14,7 +13,7 @@
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
@@ -24,12 +23,14 @@
       "dom"
     ],
     "paths": {
-      "@core": ["app/core"],
-      "@core/*": ["app/core/*"],
-      "@shared": ["app/shared"],
-      "@shared/*": ["app/shared/*"],
-      "@config": ["app/config"],
-      "@config/*": ["app/config/*"],
+      "app/*": ["./src/app/*"],
+      "environments/*": ["./src/environments/*"],
+      "@core": ["./src/app/core"],
+      "@core/*": ["./src/app/core/*"],
+      "@shared": ["./src/app/shared"],
+      "@shared/*": ["./src/app/shared/*"],
+      "@config": ["./src/app/config"],
+      "@config/*": ["./src/app/config/*"]
     },
   },
   "angularCompilerOptions": {

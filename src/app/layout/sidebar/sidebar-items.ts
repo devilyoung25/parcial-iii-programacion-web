@@ -1,4 +1,5 @@
-import { ROLES } from '@shared/models/enums';
+
+import { ROLES } from 'app/shared/models/enums';
 import { RouteInfo } from './sidebar.metadata';
 export const ROUTES: RouteInfo[] = [
   {
@@ -11,7 +12,8 @@ export const ROUTES: RouteInfo[] = [
     badge: '',
     badgeClass: '',
     submenu: [],
-    rolAuthority: [ROLES.ADMIN, ROLES.USER]
+    rolAuthority: [ROLES.ADMIN, ROLES.USER],
+    active: true
   },
   {
     path: '/page/projects',
@@ -23,7 +25,8 @@ export const ROUTES: RouteInfo[] = [
     badge: '',
     badgeClass: '',
     submenu: [],
-    rolAuthority: [ROLES.ADMIN]
+    rolAuthority: [ROLES.ADMIN],
+    active: false
   },  
   {
     path: '/page/users',
@@ -35,7 +38,8 @@ export const ROUTES: RouteInfo[] = [
     badge: '',
     badgeClass: '',
     submenu: [],
-    rolAuthority: [ROLES.ADMIN]
+    rolAuthority: [ROLES.ADMIN],
+    active: true
   },
   {
     path: '/page/projects',
@@ -47,6 +51,7 @@ export const ROUTES: RouteInfo[] = [
     badge: '',
     badgeClass: '',
     submenu: [],
-    rolAuthority: [ROLES.USER]
+    rolAuthority: [ROLES.USER],
+    active: false
   },  
 ];

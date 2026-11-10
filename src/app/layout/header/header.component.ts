@@ -12,6 +12,7 @@ import { ConfigService } from '@config';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from 'app/core';
 
 @Component({
   selector: 'app-header',
@@ -37,10 +38,10 @@ export class HeaderComponent implements OnInit {
     private readonly renderer: Renderer2,
     public readonly elementRef: ElementRef,
     private readonly configService: ConfigService,
-    // private readonly authService: AuthService,
+    private readonly authService: AuthService,
     private readonly router: Router
   ) {
-    // this.userLogged = this.authService.getAuthFromSessionStorage().nombre;
+    this.userLogged = this.authService.getAuthFromSessionStorage().nombre;
    }
 
    userLogged: string | undefined = '';

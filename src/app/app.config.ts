@@ -12,7 +12,6 @@ import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import { FeatherModule } from 'angular-feather';
 import { allIcons } from 'angular-feather/icons';
-import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { JwtInterceptor } from '@core/interceptor/jwt.interceptor';
 
@@ -39,7 +38,6 @@ export const appConfig: ApplicationConfig = {
     },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     importProvidersFrom(FeatherModule.pick(allIcons)),
-    provideCharts(withDefaultRegisterables()),
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimationsAsync(),
   ],

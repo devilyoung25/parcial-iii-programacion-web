@@ -10,4 +10,5 @@ export interface RouteInfo {
   badgeClass: string;
   submenu: RouteInfo[];
   rolAuthority: number[];
+  active: boolean;
 }

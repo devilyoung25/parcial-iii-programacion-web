@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Event, Router, NavigationStart, NavigationEnd, RouterModule } from '@angular/router';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, RouterModule],
@@ -11,9 +13,10 @@ import { Event, Router, NavigationStart, NavigationEnd, RouterModule } from '@an
 })
 export class AppComponent {
   currentUrl!: string;
-  constructor(public _router: Router) {
+  constructor(public _router: Router, private readonly dialog: MatDialog) {
     this._router.events.subscribe((routerEvent: Event) => {
       if (routerEvent instanceof NavigationStart) {
+        if (routerEvent.url.startsWith('/authentication/')) this.dialog.closeAll();
         this.currentUrl = routerEvent.url.substring(
           routerEvent.url.lastIndexOf('/') + 1
         );

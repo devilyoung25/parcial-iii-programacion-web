@@ -1,5 +1,5 @@
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -20,6 +20,9 @@ import { ModalCreateUserComponent } from 'app/pages/modal-create-user/modal-crea
 import { MatDialog } from '@angular/material/dialog';
 import { ModalEditUsersComponent } from 'app/pages/modal-edit-users/modal-edit-users.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Usuario } from '@core/models/usuario';
+import Swal from 'sweetalert2';
 
 export interface User {
   name: string;
@@ -27,6 +30,7 @@ export interface User {
 
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'app-users',
     imports: [
     BreadcrumbComponent,
@@ -71,20 +75,18 @@ export class UsersComponent implements OnInit {
     },
   ];
 
+  private readonly destroyRef = inject(DestroyRef);
+  loadError = '';
+
   // table
-  dataSource = new MatTableDataSource<any>([]);
+  dataSource = new MatTableDataSource<Usuario>([]);
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
 
   // search
   userFormSearchFilter!: FormGroup;
-  usersList: any[] = [];
+  usersList: Usuario[] = [];
 
   isLoading = false;
-
-  userDefaultFilterSearch: any = {
-    name: undefined,
-    email: undefined,
-  }
 
 
   constructor(
@@ -97,8 +99,8 @@ export class UsersComponent implements OnInit {
   ngOnInit(): void {
     this.createUserFormSearchFilter();
     this.getAllUserByAdministrator();
-    this.handleUserFilterChange('name', 'name');
-    this.handleUserFilterChange('email', 'email');
+    this.handleUserFilterChange('name');
+    this.handleUserFilterChange('email');
   }
 
   private createUserFormSearchFilter() {
@@ -119,27 +121,35 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  private handleUserFilterChange(controlName: string, filterKey: string) {
+  private handleUserFilterChange(controlName: string) {
     this.userFormSearchFilter.controls[controlName].valueChanges.pipe(
       debounceTime(500),
-      distinctUntilChanged()
-    ).subscribe((value: any) => {
-      this.userDefaultFilterSearch[filterKey] = value;
-      console.log(this.userDefaultFilterSearch);
-      this.getAllUserByAdministrator({ ...this.userDefaultFilterSearch, [filterKey]: value });
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      const { name, email } = this.userFormSearchFilter.getRawValue();
+      const nameFilter = name.trim().toLocaleLowerCase();
+      const emailFilter = email.trim().toLocaleLowerCase();
+      this.dataSource.data = this.usersList.filter(user =>
+        user.nombre.toLocaleLowerCase().includes(nameFilter) &&
+        user.email.toLocaleLowerCase().includes(emailFilter));
+      this.paginator.firstPage();
     });
   }
 
-  getAllUserByAdministrator(filters?: any): void {
+  getAllUserByAdministrator(): void {
     this.isLoading = true;
-    this.userService.getAllUserByAdministrator(filters).subscribe({
-      next: (response: any) => {
-        this.usersList = response.users;
-        this.dataSource.data = response.users;
+    this.loadError = '';
+    this.userService.getAllUserByAdministrator().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: response => {
+        this.usersList = response;
+        this.dataSource.data = response;
+        this.userFormSearchFilter.reset({ name: '', email: '' }, { emitEvent: false });
         this.dataSource.paginator = this.paginator;
         this.isLoading = false;
       },
       error: () => {
+        this.loadError = 'No se pudieron cargar los usuarios.';
         this.isLoading = false;
       }
     });
@@ -147,8 +157,7 @@ export class UsersComponent implements OnInit {
 
   openModalCreateUser(): void {
     const dialogRef = this.dialogModel.open(ModalCreateUserComponent, {
-      minWidth: '300px',
-      maxWidth: '1000px',
+      maxWidth: '95vw',
       width: '840px',
       disableClose: true,
     });
@@ -160,10 +169,9 @@ export class UsersComponent implements OnInit {
     })
   }
 
-  openModalUpdateUsers(userInformation: any): void {
+  openModalUpdateUsers(userInformation: Usuario): void {
     const dialogRef = this.dialogModel.open(ModalEditUsersComponent, {
-      minWidth: '300px',
-      maxWidth: '1000px',
+      maxWidth: '95vw',
       width: '840px',
       disableClose: true,
       data: { user: userInformation }
@@ -176,14 +184,21 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  deleteUser(userId: number): void {
+  async deleteUser(userId: number): Promise<void> {
+    const result = await Swal.fire({
+      title: '¿Eliminar usuario?',
+      text: 'También se eliminarán sus asignaciones a proyectos.',
+      icon: 'warning', showCancelButton: true,
+      confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar'
+    });
+    if (!result.isConfirmed) return;
     this.userService.deleteUser(userId).subscribe({
       next: (response) => {
-        this._snackBar.open(response.message, 'Cerrar', { duration: 5000 });
+        this._snackBar.open('Usuario eliminado.', 'Cerrar', { duration: 5000 });
         this.getAllUserByAdministrator();
       },
       error: (error) => {
-        const errorMessage = error.error?.message || 'Error al eliminar el usuario';
+        const errorMessage = error.error?.error || 'Error al eliminar el usuario';
         this._snackBar.open(errorMessage, 'Cerrar', { duration: 5000 });
       }
     });

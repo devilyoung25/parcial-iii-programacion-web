@@ -1,3 +1,4 @@
+import { inject } from '@angular/core';
 import { Route } from '@angular/router';
 import { MainLayoutComponent } from './layout/app-layout/main-layout/main-layout.component';
 import { AuthGuard } from '@core/guard/auth.guard';
@@ -7,7 +8,9 @@ export const APP_ROUTE: Route[] = [
     path: '',
     component: MainLayoutComponent,
     canActivate: [AuthGuard],
+    canActivateChild: [() => inject(AuthGuard).canActivate()],
     children: [
+      { path: '', pathMatch: 'full', redirectTo: 'page/projects' },
       {
         path: 'dashboard',
         loadChildren: () =>
@@ -27,4 +30,5 @@ export const APP_ROUTE: Route[] = [
     loadChildren: () =>
       import('./authentication/auth.routes').then((m) => m.AUTH_ROUTE),
   },
+  { path: '**', redirectTo: 'page/projects' },
 ];

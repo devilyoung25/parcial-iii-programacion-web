@@ -1,103 +1,67 @@
-# admin-access-project-frontend
+# Nexo Proyectos
 
-## Proyecto de Programación Web – Frontend
+Frontend de Programación Web basado en la plantilla de la profesora Juliana Gómez.
+Usa Angular, Angular Material y Bootstrap.
 
-Aplicación frontend desarrollada con **Angular y TypeScript**, orientada a la gestión de usuarios y proyectos. El proyecto implementa una estructura modular que facilita la organización, mantenimiento y evolución de la aplicación.
+## Ejecutar
 
-## Tecnologías utilizadas
+Con nvm instalado, usa la versión de Node indicada en el proyecto.
 
-- Angular
-- TypeScript
-- Node.js
-- npm
-
-## Requisitos
-
-Para ejecutar el proyecto localmente, es necesario tener instalado:
-
-- **Node.js:** versión 18 o superior.
-- **npm:** versión 10 o superior.
-
-Se recomienda verificar las versiones instaladas antes de iniciar:
-
-```bash
-node -v
-npm -v
+```sh
+nvm install
+nvm use
+npm ci
+npm start
 ```
 
-## Instalación
+Abre http://localhost:4200. Antes de iniciar sesión, ejecuta el backend de la carpeta
+`../src` siguiendo su README, con PostgreSQL y los datos de demostración cargados.
 
-1. Clonar el repositorio:
+La URL del backend está en `src/environments/environment.local.ts`.
+Para desarrollo se usa `http://127.0.0.1:3000`. Las peticiones llevan el prefijo `/api`.
+El backend define las cuentas de prueba y su contraseña mediante `DEMO_PASSWORD`.
 
-```bash
-git clone https://github.com/jgomez04/project-programacionWeb-Frontend.git
+## Funciones
+
+- Inicio y cierre de sesión con el token y el usuario devueltos por la API.
+- Gestión de usuarios propios para el administrador.
+- Crear, consultar, editar y eliminar proyectos del administrador.
+- Asignar y retirar usuarios propios desde el detalle del proyecto.
+- Consulta de proyectos asignados para usuarios regulares.
+
+El backend asigna automáticamente el rol y el administrador al crear usuarios.
+Los proyectos tienen nombre, descripción opcional y fecha de creación.
+Los permisos de escritura se validan también en el servidor.
+
+Para mostrar las asignaciones se consulta la lista de usuarios y los proyectos
+de cada uno, usando los endpoints existentes. Si crece mucho la cantidad de
+usuarios, conviene agregar una consulta de participantes por proyecto al backend.
+
+## Ejecutar en local
+
+Usa Node 24.15.0, que cumple los requisitos de las dependencias de la plantilla.
+
+```sh
+nvm install
+nvm use
+npm ci
+npm start
 ```
 
-2. Ingresar al directorio del proyecto:
+El frontend abre en http://localhost:4200. El backend de la carpeta ../src debe
+estar iniciado con PostgreSQL y npm run dev. La API se configura en
+src/environments/environment.local.ts y apunta a http://127.0.0.1:3000.
+Las cuentas de demostración usan la contraseña DEMO_PASSWORD del backend.
 
-```bash
-cd admin-access-project-frontend
+Los componentes usan detección de cambios Eager y Zone.js para actualizar la
+pantalla después de las suscripciones HTTP, siguiendo el estilo de la plantilla.
+
+## Verificación
+
+```sh
+npm run build
+npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/core/service/auth.service.spec.ts
 ```
 
-3. Instalar las dependencias:
-
-```bash
-npm install
-```
-
-## Ejecución en ambiente local
-
-Para iniciar la aplicación en ambiente de desarrollo, ejecutar:
-
-```bash
-ng serve
-```
-Si el proyecto está configurado con Angular CLI, la aplicación estará disponible por defecto en:
-
-[http://localhost:4200](http://localhost:4200)
-
-## Ambientes de configuración
-
-El proyecto dispone de configuraciones para diferentes ambientes de ejecución:
-
-- **Local:** desarrollo y pruebas desde el entorno del desarrollador.
-- **QA:** pruebas y validación de funcionalidades.
-- **Producción:** ambiente destinado al despliegue de la aplicación.
-
-Las configuraciones de los ambientes se encuentran en la carpeta `src/environments` y se seleccionan mediante las configuraciones definidas en `angular.json`.
-
-## Construcción de la aplicación
-
-### Producción
-
-```bash
-ng build
-```
-
-### QA
-
-```bash
-ng build --configuration qa
-```
-Los archivos generados durante el proceso de construcción se almacenan en el directorio de salida configurado en Angular.
-
-## Funcionalidades
-
-- Navegación mediante rutas de Angular.
-- Menú lateral dinámico.
-- Visualización de opciones según roles de usuario.
-- Gestión de usuarios.
-- Gestión de proyectos.
-- Comunicación con servicios backend mediante peticiones HTTP.
-- Configuración por ambientes.
-
-## Backend
-
-La aplicación frontend se comunica con un backend mediante servicios HTTP.
-
-La URL base de los servicios se configura a través de los archivos de ambiente, permitiendo ajustar la conexión según el ambiente de ejecución.
-
-## Autoría y desarrollo
-
-Proyecto desarrollado en el marco de Programación Web.
-
+Las pruebas de sesión revisan el login con nuestro contrato, expiración, cierre
+de sesión, encabezado Bearer, listados y respuestas vacías del servidor.

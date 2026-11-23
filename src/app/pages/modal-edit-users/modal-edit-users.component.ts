@@ -1,88 +1,60 @@
-
-import { Component, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { finalize } from 'rxjs';
+import { Usuario } from '@core/models/usuario';
 import { UsersService } from 'app/services/users/users.service';
 
 @Component({
-    selector: 'app-modal-edit-users',
-    imports: [FormsModule, MatDialogModule, MatButtonModule, MatSelectModule, MatIconModule, MatFormFieldModule, MatInputModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent, ReactiveFormsModule],
-    templateUrl: './modal-edit-users.component.html',
-    styleUrl: './modal-edit-users.component.scss'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-modal-edit-users',
+  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  templateUrl: './modal-edit-users.component.html',
+  styleUrl: './modal-edit-users.component.scss'
 })
 export class ModalEditUsersComponent {
-
-  formUpdateUsers!: FormGroup;
-  administratorsValues: any[] = [];
+  readonly formUpdateUsers = new FormGroup({
+    nombre: new FormControl('', { nonNullable: true, validators: [
+      Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)
+    ] }),
+    email: new FormControl('', { nonNullable: true, validators: [
+      Validators.required, Validators.email, Validators.maxLength(150)
+    ] }),
+  });
+  saving = false;
+  error = '';
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private readonly _formBuilder: FormBuilder,
-    private readonly _snackBar: MatSnackBar,
-    private readonly _userService: UsersService,
-    private readonly dialogRef: MatDialogRef<ModalEditUsersComponent>
+    @Inject(MAT_DIALOG_DATA) readonly data: { user: Usuario },
+    private readonly userService: UsersService,
+    private readonly dialogRef: MatDialogRef<ModalEditUsersComponent>,
+    private readonly snackBar: MatSnackBar,
   ) {
-    this.updateFormUsers();
-    this.getAllAdministrator();
+    this.formUpdateUsers.patchValue(data.user);
   }
 
-  ngOnInit() {
-    if (this.data?.user) {
-      this.loadUserData(this.data.user);
-    }
-  }
-
-  updateFormUsers() {
-    this.formUpdateUsers = this._formBuilder.group({
-      nombre: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      rol_id: ['', Validators.required],
-      administrador_id: ['', Validators.required]
-    });
-  }
-
-  loadUserData(user: any) {
-    this.formUpdateUsers.patchValue({
-      nombre: user.nombre,
-      email: user.email,
-      rol_id: String(user.rol_id),
-      administrador_id: user.administrador_id
-    });
-  }
-
-  getAllAdministrator() {
-    this._userService.getAllAdministrator().subscribe({
-      next: (res) => {
-        this.administratorsValues = res.users;
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    });
-  }
-
-  updateUsers() {
-    if (this.formUpdateUsers.valid) {
-      const userData = this.formUpdateUsers.value;
-      const userId = this.data?.user?.id;
-
-      this._userService.updateUser(userId, userData).subscribe({
-        next: (response) => {
-          this._snackBar.open(response.message, 'Cerrar', { duration: 5000 });
+  updateUsers(): void {
+    if (this.saving) return;
+    this.formUpdateUsers.markAllAsTouched();
+    if (this.formUpdateUsers.invalid) return;
+    const { nombre, email } = this.formUpdateUsers.getRawValue();
+    this.saving = true;
+    this.error = '';
+    this.dialogRef.disableClose = true;
+    this.userService.updateUser(this.data.user.id, { nombre: nombre.trim(), email: email.trim() })
+      .pipe(finalize(() => {
+        this.saving = false;
+        this.dialogRef.disableClose = false;
+      })).subscribe({
+        next: () => {
+          this.snackBar.open('Usuario actualizado.', 'Cerrar', { duration: 5000 });
           this.dialogRef.close(true);
         },
-        error: (error) => {
-          const errorMessage = error.error?.result || 'Ocurrió un error inesperado. Por favor, intenta nuevamente.';
-          this._snackBar.open(errorMessage, 'Cerrar', { duration: 5000 });
-        }
+        error: error => this.error = error.error?.error || 'No se pudo actualizar el usuario.',
       });
-    }
   }
-
 }

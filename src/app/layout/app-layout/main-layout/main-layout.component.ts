@@ -1,5 +1,5 @@
 import { Direction, BidiModule } from '@angular/cdk/bidi';
-import { AfterViewInit, Component, Inject, Renderer2 } from '@angular/core';
+import { ChangeDetectionStrategy, AfterViewInit, Component, Inject, Renderer2 } from '@angular/core';
 import { InConfiguration } from '@core';
 import { ConfigService } from '@config';
 import { DOCUMENT } from '@angular/common';
@@ -9,6 +9,7 @@ import { HeaderComponent } from '../../header/header.component';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-main-layout',
   templateUrl: './main-layout.component.html',
   styleUrls: [],

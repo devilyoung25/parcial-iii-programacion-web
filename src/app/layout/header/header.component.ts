@@ -41,7 +41,7 @@ export class HeaderComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly router: Router
   ) {
-    this.userLogged = this.authService.getAuthFromSessionStorage().nombre;
+    this.userLogged = this.authService.getAuthFromSessionStorage()?.nombre;
    }
 
    userLogged: string | undefined = '';
@@ -84,7 +84,7 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  // logout() {
-  //   this.authService.logout();
-  // }
+  logout(): void {
+    this.authService.logout();
+  }
 }

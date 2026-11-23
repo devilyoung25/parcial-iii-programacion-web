@@ -1,51 +1,26 @@
-<div class="col-lg-12 col-md-12 col-sm-12">
-    <h2 mat-dialog-title>Actualización de usuarios</h2>
-    <br>
-    <div mat-dialog-content>
-        <form [formGroup]="formUpdateUsers">
-            <div class="col-lg-12 col-md-12 col-sm-12 custom-margin">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6">
-                        <mat-form-field class="w-100" appearance="outline">
-                            <mat-label>Nombre</mat-label>
-                            <input matInput formControlName="nombre">
-                        </mat-form-field>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6">
-                        <mat-form-field class="w-100" appearance="outline">
-                            <mat-label>Correo electrónico</mat-label>
-                            <input matInput formControlName="email">
-                        </mat-form-field>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12">
-                        <mat-form-field class="w-100" appearance="outline">
-                            <mat-label>Rol</mat-label>
-                            <mat-select formControlName="rol_id">
-                                <mat-option value="">Seleccionar</mat-option>
-                                <mat-option value="1">Administrador</mat-option>
-                                <mat-option value="2">Usuario</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6">
-                        <mat-form-field class="w-100" appearance="outline">
-                            <mat-label>Administrador</mat-label>
-                            <mat-select formControlName="administrador_id">
-                                <mat-option value="">Seleccionar</mat-option>
-                                @for (item of administratorsValues; track $index) {
-                                    <mat-option [value]="item.id">{{ item.nombre }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                </div>
-            </div>
-        </form>
+<h2 mat-dialog-title>Actualización de usuarios</h2>
+<mat-dialog-content>
+  <form id="editar-usuario" [formGroup]="formUpdateUsers" (ngSubmit)="updateUsers()" class="row mt-3">
+    <div class="col-md-6">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" maxlength="100" required>
+        @if (formUpdateUsers.controls.nombre.invalid) { <mat-error>Escribe un nombre de hasta 100 caracteres.</mat-error> }
+      </mat-form-field>
     </div>
-    <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close>Cancelar</button>
-        <button mat-button cdkFocusInitial (click)="updateUsers()" [disabled]="formUpdateUsers.invalid">Actualizar</button>
-    </mat-dialog-actions>
-</div>
+    <div class="col-md-6">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput formControlName="email" type="email" required>
+        @if (formUpdateUsers.controls.email.invalid) { <mat-error>Escribe un correo válido.</mat-error> }
+      </mat-form-field>
+    </div>
+    @if (error) { <p class="alert alert-danger" role="alert">{{ error }}</p> }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [disabled]="saving" mat-dialog-close>Cancelar</button>
+  <button mat-flat-button form="editar-usuario" type="submit" [disabled]="saving || formUpdateUsers.invalid">
+    {{ saving ? 'Guardando…' : 'Actualizar' }}
+  </button>
+</mat-dialog-actions>

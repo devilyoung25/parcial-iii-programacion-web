@@ -3,23 +3,23 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { APP_ROUTE } from './app.routes';
 import { provideRouter } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import { FeatherModule } from 'angular-feather';
 import { allIcons } from 'angular-feather/icons';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { ErrorInterceptor } from '@core/interceptor/error.interceptor';
 import { JwtInterceptor } from '@core/interceptor/jwt.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(),
+    // La plantilla actualiza propiedades normales en suscripciones HTTP.
+    provideZoneChangeDetection(),
     provideRouter(APP_ROUTE),
-    provideAnimations(),
     { provide: LocationStrategy, useClass: PathLocationStrategy },
     { provide: DateAdapter, useClass: MomentDateAdapter },
     {
@@ -37,6 +37,7 @@ export const appConfig: ApplicationConfig = {
       },
     },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     importProvidersFrom(FeatherModule.pick(allIcons)),
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimationsAsync(),

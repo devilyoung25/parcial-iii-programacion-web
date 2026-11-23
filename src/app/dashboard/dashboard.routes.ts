@@ -1,11 +1,6 @@
 import { Route } from '@angular/router';
-import { MainComponent } from './main/main.component';
-
 
 export const DASHBOARD_ROUTE: Route[] = [
-  {
-    path: 'main',
-    component: MainComponent
-  },
+  { path: '', redirectTo: '/page/projects', pathMatch: 'full' },
+  { path: 'main', redirectTo: '/page/projects', pathMatch: 'full' },
 ];
-

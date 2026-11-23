@@ -71,7 +71,7 @@ export class SidebarComponent
         this._renderer.removeClass(this._document.body, 'overlay-open');
       }
     });
-    const roleInfo = this._authService.getRoleInfoByToken();
+    const roleInfo = this._authService.getRoleInfo();
     this.userLogged = roleInfo ? roleInfo.roleName : undefined;
   }
   @HostListener('window:resize')
@@ -118,7 +118,7 @@ export class SidebarComponent
   }
 
   ngOnInit() {
-    const rolAuthority = this._authService.getAuthFromSessionStorage().rol_id;
+    const rolAuthority = this._authService.getAuthFromSessionStorage()?.rol_id ?? 0;
     this.sidebarItems = ROUTES.filter((sidebarItem) => sidebarItem?.rolAuthority.includes(rolAuthority) && sidebarItem?.active);
     this.initLeftSidebar();
     this.bodyTag = this._document.body;

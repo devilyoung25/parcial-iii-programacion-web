@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>Detalle del proyecto</h2>
+<mat-dialog-content>
+  @if (loading) { <mat-spinner diameter="32" aria-label="Cargando detalle"></mat-spinner> }
+  @if (error) {
+    <div class="alert alert-danger" role="alert">
+      {{ error }} <button mat-button [disabled]="saving || loading" (click)="cargar()">Reintentar</button>
+    </div>
+  }
+  @if (proyecto; as proyecto) {
+    <h3>{{ proyecto.nombre }}</h3>
+    <p>{{ proyecto.descripcion || 'Sin descripción' }}</p>
+    <p>Creado el {{ proyecto.fecha_creacion | date:'dd/MM/yyyy' }}</p>
+    @if (isAdmin && !loading && !error) {
+      <h3>Usuarios del proyecto</h3>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Nombre</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody>
+            @for (fila of usuarios; track fila.usuario.id) {
+              <tr>
+                <td>{{ fila.usuario.nombre }}</td>
+                <td>{{ fila.asignado ? 'Asignado' : 'Sin asignar' }}</td>
+                <td>
+                  <button mat-button [disabled]="saving || !!error" (click)="cambiarAsignacion(fila)">
+                    {{ fila.asignado ? 'Retirar' : 'Asignar' }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="3">No hay usuarios disponibles.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="saving">Cerrar</button>
+</mat-dialog-actions>

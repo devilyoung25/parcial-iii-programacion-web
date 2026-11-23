@@ -1,28 +1,20 @@
-import { AuthService } from '../service/auth.service';
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, catchError, throwError } from 'rxjs';
+import { AuthService } from '../service/auth.service';
+import { URL_SERVICIOS } from '@core/models/config';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  constructor(private authenticationService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  intercept(
-    request: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    return next.handle(request).pipe(
-      catchError((err) => {
-        if (err.status === 401) {
-          // auto logout if 401 response returned from api
-          this.authenticationService.logout();
-          location.reload();
-        }
-
-        const error = err.error.message || err.statusText;
-        return throwError(error);
-      })
-    );
+  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    return next.handle(req).pipe(catchError(error => {
+      if (error.status === 401 && req.url.startsWith(`${URL_SERVICIOS}/api/`) &&
+          !req.url.endsWith('/auth/login')) {
+        this.authService.logout();
+      }
+      return throwError(() => error);
+    }));
   }
 }

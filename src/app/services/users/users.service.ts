@@ -1,49 +1,28 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { URL_SERVICIOS } from '@core/models/config';
 import { Observable } from 'rxjs';
+import { URL_SERVICIOS } from '@core/models/config';
+import { CrearUsuario, EditarUsuario, Usuario } from '@core/models/usuario';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UsersService {
+  private readonly url = `${URL_SERVICIOS}/api/users`;
 
-  urlBaseServices: string = URL_SERVICIOS;
+  constructor(private readonly http: HttpClient) {}
 
-  constructor(private readonly http: HttpClient) { }
-
-  createUser(userData: any): Observable<any> {
-    const endpoint = `${this.urlBaseServices}/api/v1/users/create`;
-    return this.http.post<any>(endpoint, userData);
+  createUser(data: CrearUsuario): Observable<Usuario> {
+    return this.http.post<Usuario>(this.url, data);
   }
 
-  updateUser(userId: number, userData: any): Observable<any> {
-    const endpoint = `${this.urlBaseServices}/api/v1/users/update/${userId}`;
-    return this.http.put<any>(endpoint, userData);
+  updateUser(id: number, data: EditarUsuario): Observable<Usuario> {
+    return this.http.put<Usuario>(`${this.url}/${id}`, data);
   }
 
-  deleteUser(userId: number): Observable<any> {
-    const endpoint = `${this.urlBaseServices}/api/v1/users/delete/${userId}`;
-    return this.http.delete<any>(endpoint);
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
   }
 
-  getAllUserByAdministrator(filters?: any): Observable<any> {
-    const endpoint = `${this.urlBaseServices}/api/v1/users`;
-    const params = new HttpParams({ fromObject: {
-      nombre: filters?.name || '',
-      email: filters?.email || ''
-    } });
-    return this.http.get<any>(endpoint, { params });
+  getAllUserByAdministrator(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(this.url);
   }
-
-  getAllAdministrator(): Observable<any> {
-    const endpoint = `${this.urlBaseServices}/api/v1/users/rol/1`;
-    return this.http.get<any>(endpoint);
-  }
-
-  getAllUsers(): Observable<any> {
-    const endpoint = `${this.urlBaseServices}/api/v1/users/rol/2`;
-    return this.http.get<any>(endpoint);
-  }
-
 }

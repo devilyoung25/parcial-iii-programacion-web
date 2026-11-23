@@ -26,7 +26,7 @@ export const ROUTES: RouteInfo[] = [
     badgeClass: '',
     submenu: [],
     rolAuthority: [ROLES.ADMIN],
-    active: false
+    active: true
   },  
   {
     path: '/page/users',
@@ -52,6 +52,6 @@ export const ROUTES: RouteInfo[] = [
     badgeClass: '',
     submenu: [],
     rolAuthority: [ROLES.USER],
-    active: false
+    active: true
   },  
 ];
